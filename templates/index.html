@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chatbox">
+            <div class="botText"><span>Hello! Ask me anything.</span></div>
+        </div>
+
+        <div class="input-container">
+            <input id="textInput" type="text" placeholder="Type your message...">
+            <button onclick="sendButton()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendButton() {
+            let userText = document.getElementById("textInput").value;
+            if (!userText) return;
+
+            let chatbox = document.getElementById("chatbox");
+
+            // Display user message
+            let userDiv = document.createElement("div");
+            userDiv.className = "userText";
+            userDiv.innerHTML = `<span>${userText}</span>`;
+            chatbox.appendChild(userDiv);
+            document.getElementById("textInput").value = "";
+
+            // Send to backend
+            const response = await fetch("/get", {
+                method: "POST",
+                body: JSON.stringify({ message: userText }),
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const data = await response.json();
+            const botResponse = data.response;
+
+            // Display bot response
+            let botDiv = document.createElement("div");
+            botDiv.className = "botText";
+            botDiv.innerHTML = `<span>${botResponse}</span>`;
+            chatbox.appendChild(botDiv);
+
+            // Scroll to bottom
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        // Send on Enter key
+        document.getElementById("textInput").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                sendButton();
+            }
+        });
+    </script>
+</body>
+</html>
